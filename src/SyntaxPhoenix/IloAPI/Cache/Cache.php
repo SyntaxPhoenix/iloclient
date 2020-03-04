@@ -10,7 +10,7 @@ class Cache
 
     public function __construct()
     {
-        $cachedRequests = [];
+        $this->cachedRequests = [];
     }
 
     public function cacheSite(string $requestUrl, array $data): void 
