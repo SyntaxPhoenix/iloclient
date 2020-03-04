@@ -1,10 +1,19 @@
 {
     "name": "syntaxphoenix/iloclient",
     "license": "MIT",
-    "version": "0.0.2",
+    "version": "0.0.3",
     "autoload": {
         "classmap": [
             "src"
         ]
+    },
+    "require": {
+        "php": "^7.2.5"
+    },
+    "minimum-stability": "dev",
+    "extra": {
+        "branch-alias": {
+            "dev-master": "master"
+        }
     }
 }
