@@ -1,0 +1,9 @@
+{
+    "name": "syntaxphoenix/iloclient",
+    "version": "0.0.1",
+    "autoload": {
+        "classmap": [
+            "src"
+        ]
+    }
+}
