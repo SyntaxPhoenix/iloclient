@@ -18,7 +18,7 @@ class Chassis extends DataModel
     public function __construct(IloRequest $request, int $chassis, bool $useCache = true)
     {
         $this->request = $request;
-        $this->data = $this->request->get('/redfish/v1/chassis/1/', $useCache)['body'];
+        $this->data = $this->request->get('/redfish/v1/chassis/' . $chassis . '/', $useCache)['body'];
         parent::__construct($this->data);
     }
 

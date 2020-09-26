@@ -49,14 +49,31 @@ class IloRequest {
         return false;
     }
 
-    public function logout(): void
+    public function logout(): bool
     {
+        if ($this->session) {
+            $url = substr($this->location, strlen($this->basicUrl), strlen($this->location) - strlen($this->basicUrl));
+            $data = $this->delete($url);
 
+            if ($data && isset($data['body']) && isset($data['body']['Messages']) && isset($data['body']['Messages'][0]) 
+                && isset($data['body']['Messages'][0]['MessageID']) && $data['body']['Messages'][0]['MessageID'] == 'Base.0.10.Success') {
+                $this->session = null;
+                $this->location = null;
+                return true;
+            }
+        }
+
+        return false;        
     }
 
     public function getSession(): string
     {
         return $this->session;
+    }
+
+    public function delete(string $url): array
+    {
+        return $this->requestCurl($url, 'DELETE');
     }
 
     public function post(string $url, array $body): array
@@ -87,6 +104,8 @@ class IloRequest {
             $bodyString = json_encode($body);
             curl_setopt($curl, CURLOPT_POST, 1);
             curl_setopt($curl, CURLOPT_POSTFIELDS, $bodyString);
+        } else if ($requestMethod == 'DELETE') {
+            curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "DELETE");
         }
         
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
@@ -100,6 +119,7 @@ class IloRequest {
 
         curl_setopt($curl, CURLOPT_HTTPHEADER, $requestHeaders);
         curl_setopt ( $curl, CURLOPT_SSL_VERIFYPEER, $this->verifySsl);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, $this->verifySsl);
 
         curl_setopt($curl, CURLOPT_HEADERFUNCTION,
             function($curl, $header) use (&$headers)
@@ -116,11 +136,15 @@ class IloRequest {
             }
         );
         
-        $response = json_decode(curl_exec($curl), true);
+        $content = curl_exec($curl);
+        if ($content === false) {
+            throw new IloResponseException(curl_error($curl), curl_errno($curl));
+        }
+        $response = json_decode($content, true);
         $status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
 
         if ($status < 200 || $status > 299) {
-            throw new IloResponseException('Ilo-Exception', $status);
+            throw new IloResponseException($response['Messages'][0]['MessageID'], $status);
         }
         
         curl_close($curl);
