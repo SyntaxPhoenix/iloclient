@@ -1,5 +1,6 @@
 {
     "name": "syntaxphoenix/iloclient",
+    "description": "ILO-4 PHP-Client"
     "license": "MIT",
     "version": "0.0.4",
     "autoload": {
